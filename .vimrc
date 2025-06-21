@@ -41,3 +41,16 @@ if uname =~ "OpenBSD" && !has("gui_running")
     highlight LineNr term=bold ctermfg=6 guifg=Brown
 endif
 
+" Insert mode mappings for an MIT license
+inoremap <expr> //mit License('Timothy Rost', 'MIT', '//')
+inoremap <expr> #mit License('Timothy Rost', 'MIT', '#')
+inoremap <expr> "mit License('Timothy Rost', 'MIT', '"')
+
+function License(author, license, delimiter)
+    let line1 = printf("%s Copyright (c) %d %s\<CR>",
+        \ a:delimiter, strftime('%Y'), a:author)
+    let line2 = printf("%s SPDX-License-Identifier: %s\<CR>",
+        \ a:delimiter, a:license)
+    return l:line1 . l:line2
+endfunction
+
