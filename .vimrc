@@ -1,16 +1,29 @@
-" Copyright (c) 2025 Timothy Rost
+" Copyright (c) 2026 Timothy Rost
 " SPDX-License-Identifier: MIT
 
-" Turn on syntax highlighting
+" Disable Vi backward compatibility to take advantage
+" of Vim's enhanced features and functionalities.
+set nocompatible
+
+" Enable syntax highlighting
 syntax on
 
-" Show the line number and relative line numbers
+" Enable built-in file explorer netrw
+filetype plugin on
+
+" Use UTF-8 encoding
+set encoding=utf-8
+
+" Show the file stats and cursor position
+set ruler
+
+" Show the line number and relative line number
 set number relativenumber
 
-" New lines inherit indention of the previous line
+" A new line inherits indention of the previous line
 set autoindent
 
-" React to the syntax and style of code
+" Indent according to code syntax and style
 set smartindent
 
 " The tab key indents by 4 spaces
@@ -20,14 +33,14 @@ set tabstop=4
 set shiftwidth=4
 
 " Convert tab to spaces except in a Makefile
-set expandtab
 autocmd FileType ^make setlocal expandtab
 
-" Show file stats and cursor position
-set ruler
+" Enable word wrapping in markdown, LaTeX, and text files.
+autocmd FileType markdown,tex,plaintex,text set wrap linebreak
 
-" Encoding
-set encoding=utf-8
+" Enable spelling in markdown, LaTeX, and text files
+setlocal nospell spelllang=en_us
+autocmd FileType markdown,tex,plaintex,text setlocal spell
 
 " Disable the arrow keys
 noremap <Up> <Nop>
@@ -83,5 +96,4 @@ function! s:PrependCopyright(license, delimiter) abort
 	let header = <SID>Copyright(a:license, a:delimiter)
 	call append(0, split(header, "\n"))
 endfunction
-
 
