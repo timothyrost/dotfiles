@@ -61,19 +61,28 @@ iabbrev <expr> ddd strftime('%FT%T%z')
 " using a comment delimiter determined by the file type
 augroup CopyrightAbbreviations
 	autocmd!
-	" Default abbreviation. Exclude .vimrc so creating an abbrevation
-	" does not trigger its execution.
-	let exclude = ['vim', 'gitcommit']
-	autocmd FileType * if index(exclude, &filetype) == -1 |
-		\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '$')<CR> |
-		\ endif
-	" Overrides for specific file types
-	autocmd FileType tex,plaintex
-		\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '%')<CR>
-	autocmd FileType text
-		\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '#')<CR>
-	autocmd FileType c,cpp
-		\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '//')<CR>
+	" FileType only triggers when a filetype is set. Implement a
+	" copyright abbreviation triggered when editing a file without
+	" an extension or when its filetype is otherwise indeterminable.
+	" e.g. % vi foo
+	if (empty(&filetype))
+		iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '$')<CR>
+	else
+		" Default abbreviation. Ignore .vimrc since creating an abbrevation
+		" should not trigger its execution. Also ignore a copyright symbol
+		" typed in a git commit message.
+		let exclude = ['vim', 'gitcommit']
+		autocmd FileType * if index(exclude, &filetype) == -1 |
+			\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '$')<CR> |
+			\ endif
+		" Overrides for specific file types
+		autocmd FileType tex,plaintex
+			\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '%')<CR>
+		autocmd FileType text
+			\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '#')<CR>
+		autocmd FileType c,cpp
+			\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '//')<CR>
+	endif
 augroup END
 
 " Construct a copyright and SPDX license identifier
