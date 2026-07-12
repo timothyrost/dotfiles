@@ -50,7 +50,8 @@ augroup CopyrightAbbreviations
 	autocmd!
 	" Default abbreviation. Exclude .vimrc so creating an abbrevation
 	" does not trigger its execution.
-	autocmd FileType * if &filetype !=# 'vim' |
+	let exclude = ['vim', 'gitcommit']
+	autocmd FileType * if index(exclude, &filetype) == -1 |
 		\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '$')<CR> |
 		\ endif
 	" Overrides for specific file types
