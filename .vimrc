@@ -35,21 +35,52 @@ noremap <Down> <Nop>
 noremap <Left> <Nop>
 noremap <Right> <Nop>
 
-" OpenBSD LineNr terminal default is underline -- change to bold
+" OpenBSD LineNr terminal default is underline. Change to bold.
 let uname = system("uname")
 if uname =~ "OpenBSD" && !has("gui_running")
     highlight LineNr term=bold ctermfg=6 guifg=Brown
 endif
 
-" Insert mode mappings for an MIT license
-inoremap <expr> //mit License('MIT', '//')
-inoremap <expr> #mit License('MIT', '#')
-inoremap <expr> "mit License('MIT', '"')
-inoremap <expr> %mit License('MIT', '%')
+" Abbreviation ddd inserts the date in ISO8601 format
+iabbrev <expr> ddd strftime('%FT%T%z')
 
-function License(license, delimiter)
+" Abbreviation (c) prepends a copyright and MIT license identifier
+" using a comment delimiter determined by the file type
+augroup CopyrightAbbreviations
+	autocmd!
+	" Default abbreviation. Exclude .vimrc so creating an abbrevation
+	" does not trigger its execution.
+	autocmd FileType * if &filetype !=# 'vim' |
+		\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '$')<CR> |
+		\ endif
+	" Overrides for specific file types
+	autocmd FileType tex,plaintex
+		\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '%')<CR>
+	autocmd FileType text
+		\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '#')<CR>
+	autocmd FileType c,cpp
+		\ iabbrev <buffer> (c) <C-O>:call <SID>PrependCopyright('MIT', '//')<CR>
+augroup END
+
+" Construct a copyright and SPDX license identifier
+" license - The SPDX license identifier
+" delimiter - A comment delimiter
+function! s:Copyright(license, delimiter) abort
+	" Get the user's full name using 'getent passwd' and remove
+	" the trailing carriage return
+    let x = system('getent passwd "$USER" | cut -d ":" -f 5 | cut -d "," -f 1')
+	let name = substitute(x, '\r\?\n$', '', '')
     let year = strftime('%Y')
-    let name = system('getent passwd "$USER" | cut -d ":" -f 5 | cut -d "," -f 1')
-    return printf("%s Copyright (c) %d %s%s SPDX-License-Identifier: %s\<CR>", a:delimiter, l:year, l:name, a:delimiter, a:license)
+    return printf("%s Copyright (c) %d %s\n%s SPDX-License-Identifier: %s\n\n",
+		\ a:delimiter, l:year, l:name, a:delimiter, a:license)
 endfunction
+
+" Prepend a header consisting of a copyright and license
+" license - The SPDX license identifier
+" delimiter - A comment delimiter
+function! s:PrependCopyright(license, delimiter) abort
+	let header = <SID>Copyright(a:license, a:delimiter)
+	call append(0, split(header, "\n"))
+endfunction
+
 
